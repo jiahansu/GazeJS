@@ -1,4 +1,4 @@
 GazeJS
 ======
 
-JavaScript binding for Tobii Gaze SDK
+GazeJS project hosts an implementation of the JavaScript bindings for Tobii Gaze SDK
