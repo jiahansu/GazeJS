@@ -35,7 +35,8 @@ var gazejs = require("../lib/gazejs"), bridjs = require("bridjs"),
         dataTypes = gazejs.tobii.dataTypes, log4js = require("log4js"),
         log = log4js.getLogger("GazeJSTest"),
         modelUrl = new Buffer(dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH),
-        eyeTracker, eventLoopErrorCode = new bridjs.NativeValue.uint32();
+        eyeTracker, eventLoopErrorCode = new bridjs.NativeValue.uint32(), 
+        screenBounds = new dataTypes.Rect();;
 
 var onConnectCallback,onStopTrackingCallback,onDeviceInfoCallback,onStartTrackingCallback,
     onGazeDataCallback;
@@ -106,7 +107,8 @@ onErrorCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, f
 onGazeDataCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.Listener, function(gazeData, userData) {
     var left = gazeData.left.gazePointOnDisplayNormalized, right = gazeData.right.gazePointOnDisplayNormalized;
     
-    log.info("Left eye: "+left.x+", "+left.y+", "+left.z+"; Right eye: "+right.x+", "+right.y+", "+right.z);
+    log.info("Left eye: "+(left.x*screenBounds.right)+", "+(left.y*screenBounds.bottom)
+            +"; Right eye: "+(right.x*screenBounds.right)+", "+(right.y*screenBounds.bottom));
 });
 
 onDisconnectCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncBasicCallback, function(userData) {
@@ -122,9 +124,13 @@ try {
             bridjs.byPointer(errorCode));
     gazejs.checkError(errorCode);
     log.info("Model name: " + gazejs.toString(modelUrl));
-
+    
     log.info("Natvie library version: " + gaze.getVersion());
-
+    
+    config.getScreenBoundsPixels(modelUrl, bridjs.byPointer(screenBounds), 
+        bridjs.byPointer(errorCode));
+    gazejs.checkError(errorCode);
+    
     eyeTracker = gaze.create(modelUrl, bridjs.byPointer(errorCode));
     gazejs.checkError(errorCode);
     
