@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-var gazejs = require("../lib/gazejs"), bridjs = require("bridjs"),
+var gazejs = require("../../lib/gazejs"), bridjs = require("bridjs"),
         errorCode = new bridjs.NativeValue.uint32(),
         config = gazejs.tobii.config,
         gaze = gazejs.tobii.gaze,
@@ -66,11 +66,6 @@ function stopTracking(){
 }
 
 function destroy() {
-    log.info("Destroy eyeTracker: "+eyeTracker);
-    
-    if (eyeTracker) {
-        gaze.destroy(bridjs.byPointer(eyeTracker));
-    }
 
     config.free();
 
@@ -93,9 +88,40 @@ onGazeDataCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.Listener, fun
 });
 
 try {
+    var eyeTrackerUrl = new Buffer(config.MAX_EYE_TRACKER_URL_LENGTH);
+    var userProfile = new Buffer(config.MAX_USER_PROFILE_LENGTH);
+    var bounds = new dataTypes.Rect();
+    var trackedEyes = new bridjs.NativeValue.uint32();
+    
     config.init(bridjs.byPointer(errorCode));
     gazejs.checkError(errorCode);
-
+    
+    config.validate(bridjs.byPointer(errorCode));
+    gazejs.checkError(errorCode);
+    /*
+    config.launchControlPanel(bridjs.byPointer(errorCode));
+    gazejs.checkError(errorCode);*/
+    
+    config.getDefaultEyeTrackerUrl(eyeTrackerUrl,eyeTrackerUrl.length, bridjs.byPointer(errorCode));
+    gazejs.checkError(errorCode);
+    
+    log.info("Default system eye tracker: " + bridjs.toString(eyeTrackerUrl));
+    
+    config.getCurrentUserProfile(userProfile,userProfile.length, bridjs.byPointer(errorCode));
+    gazejs.checkError(errorCode);
+    
+    log.info("Current user profile: " + bridjs.toString(userProfile));
+    
+    
+    config.getScreenBoundsPixels(eyeTrackerUrl, bridjs.byPointer(bounds), bridjs.byPointer(errorCode));
+    gazejs.checkError(errorCode);
+    
+    log.info("Screen bounds: top left (" + bounds.left + ", " + bounds.top + "), right bottom (" + bounds.right + ", " + bounds.bottom + ")" );
+    
+    config.getTrackedEyes(userProfile, bridjs.byPointer(trackedEyes), bridjs.byPointer(errorCode));
+    gazejs.checkError(errorCode);
+    log.info("Tracked eyes code: " + trackedEyes.get());
+    /*
     config.getDefaultEyeTrackerUrl(modelUrl, dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH,
             bridjs.byPointer(errorCode));
     gazejs.checkError(errorCode);
@@ -117,16 +143,12 @@ try {
         destroy();
     });
     
-    /*Delay execution to workaround strange crash issue*/
-    setTimeout(function(){
-        gaze.registerError(bridjs.byPointer(eyeTracker), onErrorCallback, null);
-        startTracking();
-    },16);
+   */
 } catch (e) {
     log.error(e);
-
-    destroy();
 }
+
+destroy();
 
 //destroy();
 

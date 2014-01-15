@@ -1,5 +1,5 @@
 /*
- * BridJS - Dynamic and blazing-fast native interop for JavaScript.
+ * GazeJS - An implementation of the JavaScript bindings for Tobii Gaze SDK.
  * https://github.com/jiahansu/GazeJS
  *
  * Copyright (c) 2013-2013, Jia-Han Su (https://github.com/jiahansu)
@@ -28,4 +28,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-var bridjs = require('bridjs'), gaze = require("./tobiigaze");
+var gazejs = require("../lib/gazejs"), my = require("myclass"),
+        log4js = require("log4js"), log = log4js.getLogger("EyeTracker");
+var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_REX);
+
+var Listener = my.Class({
+    onStart:function(){
+        log.info("OnStart");
+    },
+    onStop:function(){
+        log.info("OnStop");
+    },
+    onError:function(error){
+        log.error(error);
+    },
+    onGazeData:function(gazeData){
+        log.info(gazeData);
+    }
+});
+
+eyeTracker.init();
+eyeTracker.setListener(new Listener());
+
+eyeTracker.start();
+
+setTimeout(function(){
+    eyeTracker.release();
+},20000);
+
+
+
+
