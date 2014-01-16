@@ -1,6 +1,6 @@
 {
     "name": "gazejs",
-    "version": "0.1.2-1",
+    "version": "0.2.2-1",
     "description": "An implementation of the JavaScript bindings for Tobii Gaze SDK",
     "keywords": [
         "tobii",
@@ -44,9 +44,7 @@
     "browser": {
         "os": false
     },
-    "readme": "An implementation of the JavaScript bindings for Tobii Gaze SDK",
-    "readmeFilename": "README.md",
-    "homepage": "https://github.com/jiahansu/BridJS/",
-    "_id": "bridjs@0.1.2-1",
-    "_from": "bridjs@>=0.1.2-1"
+    "homepage": "https://github.com/jiahansu/GazeJS/cc",
+    "_id": "bridjs@0.2.2-1",
+    "_from": "bridjs@>=0.2.2-1"
 }
