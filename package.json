@@ -44,7 +44,7 @@
     "browser": {
         "os": false
     },
-    "homepage": "https://github.com/jiahansu/GazeJS/cc",
+    "homepage": "https://github.com/jiahansu/GazeJS",
     "_id": "bridjs@0.2.2-1",
     "_from": "bridjs@>=0.2.2-1"
 }
