@@ -1,7 +1,7 @@
 GazeJS
 ======
 
-GazeJS project utilizes [BridJS](http://bridj.googlecode.com) to implement JavaScript bindings for Tobii Gaze SDK
+Utilizing [BridJS api](http://bridj.googlecode.com) to implement JavaScript bindings for Tobii Gaze SDK
 ###Installation
 ``` bash
 npm install gazejs
