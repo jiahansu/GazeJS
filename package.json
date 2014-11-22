@@ -1,12 +1,13 @@
 {
     "name": "gazejs",
-    "version": "0.3.2-3",
+    "version": "0.4.403-2",
     "description": "An implementation of the JavaScript bindings for Tobii Gaze SDK",
     "keywords": [
-        "tobii",
+        "Tobii",
         "eye tracker",
-        "tobii rex",
-        "tobii eyex"
+        "Tobii Rex",
+        "Tobii Gaze SDK",
+        "Tobii EyeX"
     ],
     "main": "./lib/gazejs",
     "author": {
@@ -45,6 +46,6 @@
         "os": false
     },
     "homepage": "https://github.com/jiahansu/GazeJS",
-    "_id": "gazejs@0.3.2-3",
+    "_id": "gazejs@0.4.403-2",
     "_from": "gazejs@>=0.3.2-3"
 }

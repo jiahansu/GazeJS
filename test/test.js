@@ -30,7 +30,7 @@
  */
 var gazejs = require("../lib/gazejs"), bridjs = require("bridjs"),
         errorCode = new bridjs.NativeValue.uint32(),
-        config = gazejs.tobii.config,
+        //config = gazejs.tobii.config,
         gaze = gazejs.tobii.gaze,
         dataTypes = gazejs.tobii.dataTypes, log4js = require("log4js"),
         log = log4js.getLogger("GazeJSTest"),
@@ -61,7 +61,7 @@ function destroy() {
         gaze.destroy(bridjs.byPointer(eyeTracker));
     }
 
-    config.free();
+    //config.free();
 
     console.log("done");
 }
@@ -101,7 +101,7 @@ onErrorCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, f
     setTimeout(destroy, 0);
 });
 
-onGazeDataCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.Listener, function(gazeData, userData) {
+onGazeDataCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.Listener, function(gazeData, extensions,userData) {
     var left = gazeData.left.gazePointOnDisplayNormalized;
     
     log.info("OnGazeData: "+left.x+", "+left.y+", "+left.z);
@@ -113,12 +113,12 @@ onDisconnectCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncBasicC
 });
 
 try {
-    config.init(bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    //config.init(bridjs.byPointer(errorCode));
+    //gazejs.checkError(errorCode);
 
-    config.getDefaultEyeTrackerUrl(modelUrl, dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH,
+     gaze.getConnectedEyeTracker(modelUrl, dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH,
             bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    gazejs.checkError(errorCode);     
     log.info("Model name: " + gazejs.toString(modelUrl));
 
     log.info("Natvie library version: " + gaze.getVersion());

@@ -30,7 +30,7 @@
  */
 var gazejs = require("../lib/gazejs"), my = require("myclass"),
         log4js = require("log4js"), log = log4js.getLogger("EyeTracker");
-var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_REX);
+var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_GAZE_SDK);
 
 var listener = {
     onStart:function(){

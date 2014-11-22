@@ -7,9 +7,10 @@ Utilizing [BridJS api](http://bridj.googlecode.com) to implement JavaScript bind
 npm install gazejs
 ```
 ###How to use
+Download lastest [Tobii Gaze SDK](http://developer.tobii.com/?wpdmdl=85) and copy "TobiiGazeCore64.dll" to working directory
 ``` bash
 var gazejs = require("gazejs")
-var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_REX);
+var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_GAZE_SDK);
 var listener = {
     onStart:function(){
         console.log("OnStart");
