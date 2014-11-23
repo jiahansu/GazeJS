@@ -1,6 +1,6 @@
 {
     "name": "gazejs",
-    "version": "0.4.403-3",
+    "version": "0.4.403-4",
     "description": "An implementation of the JavaScript bindings for Tobii Gaze SDK",
     "keywords": [
         "Tobii",
@@ -46,6 +46,6 @@
         "os": false
     },
     "homepage": "https://github.com/jiahansu/GazeJS",
-    "_id": "gazejs@0.4.403-3",
+    "_id": "gazejs@0.4.403-4",
     "_from": "gazejs@>=0.3.2-3"
 }
