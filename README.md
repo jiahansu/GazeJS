@@ -1,7 +1,9 @@
 GazeJS
 ======
-
 Utilizing [BridJS api](http://bridj.googlecode.com) to implement JavaScript bindings for Tobii Gaze SDK
+
+###Video Demonstration
+[![EyeMining for Web](http://img.youtube.com/vi/lptzZq5zj1M/0.jpg)](http://www.youtube.com/watch?v=lptzZq5zj1M&feature)
 ###Installation
 ``` bash
 npm install gazejs
