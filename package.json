@@ -1,6 +1,6 @@
 {
     "name": "gazejs",
-    "version": "0.4.403-4",
+    "version": "0.4.404-4",
     "description": "An implementation of the JavaScript bindings for Tobii Gaze SDK",
     "keywords": [
         "Tobii",
@@ -22,7 +22,7 @@
         "url": "https://github.com/jiahansu/GazeJS/issues"
     },
     "engines": {
-        "node": ">=0.10.8"
+        "node": ">=0.12.2"
     },
     "scripts": {
         "test": "vows"
@@ -35,12 +35,12 @@
     "dependencies": {
         "myclass": ">=1.0.2",
         "log4js": ">=0.6.9",
-        "bridjs": ">=0.1.7-3"
+        "bridjs": ">=0.2.0-7"
     },
     "devDependencies": {
         "myclass": ">=1.0.2",
         "log4js": ">=0.6.9",
-        "bridjs": ">=0.1.7-3"
+        "bridjs": ">=0.2.0-7"
     },
     "browser": {
         "os": false

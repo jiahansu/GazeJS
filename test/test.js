@@ -89,7 +89,8 @@ onDeviceInfoCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncDevice
     log.info("OnDeviceInof, serial number = "+gazejs.toString(deviceInfo.serialNumber));
 });
 
-onStartTrackingCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncDeviceInfoCallback, function(errorCode, userData){
+onStartTrackingCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData){
+    //log.info(userData);
     gazejs.checkError(errorCode);
     
     log.info("OnStartTracking");
