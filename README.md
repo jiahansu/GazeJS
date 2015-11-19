@@ -12,8 +12,15 @@ npm install gazejs
 Download lastest [Tobii Gaze SDK](http://developer.tobii.com/?wpdmdl=85) and copy "TobiiGazeCore64.dll" to working directory
 ``` bash
 var gazejs = require("gazejs")
-var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_GAZE_SDK);
+var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_GAZE_SDK);//or gazejs.SR_EYELINK_SDK
 var listener = {
+    onConnect:function(){
+        log.info("Library version: "+eyeTracker.getLibraryVersion());
+        log.info("Model name: "+eyeTracker.getModelName());
+        
+        eyeTracker.start();
+        console.log("OnConnect");
+    },
     onStart:function(){
         console.log("OnStart");
     },
@@ -28,13 +35,8 @@ var listener = {
     }
 };
 
-eyeTracker.init();
 eyeTracker.setListener(listener);
-
-log.info("Library version: "+eyeTracker.getLibraryVersion());
-log.info("Model name: "+eyeTracker.getModelName());
-
-eyeTracker.start();
+eyeTracker.connect();
 
 /*Stop eye tracking after 20 seconds*/
 setTimeout(function(){
