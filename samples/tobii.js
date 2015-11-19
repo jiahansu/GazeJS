@@ -2,7 +2,7 @@
  * GazeJS - An implementation of the JavaScript bindings for Tobii Gaze SDK.
  * https://github.com/jiahansu/GazeJS
  *
- * Copyright (c) 2013-2013, Jia-Han Su (https://github.com/jiahansu)
+ * Copyright (c) 2013-2015, Jia-Han Su (https://github.com/jiahansu)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,22 +28,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+var gazejs = require("../lib/gazejs"), my = require("myclass"),
+        log4js = require("log4js"), log = log4js.getLogger("EyeTracker");
+var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_GAZE_SDK);
+var runCount = 0;
 
-var my = require("myclass");
+function endTimeout() {
+    setTimeout(function () {
+        if (runCount >= 2) {
+            eyeTracker.release();
+        } else {
+            eyeTracker.stop();
+        }
+    }, 20000);
+}
 
-module.exports = my.Class({
-    STATIC: {
-        IDLE: 0,
-        STOPPED: 0,
-        INITED: 1,
-        CONNECTED: 1,
-        CALIBRATING:2,
-        STARTING: 3,
-        STARTED: 4,
-        STOPPING: 5,
-        ERROR: 6
+
+var listener = {
+    onConnect:function(){
+        log.info("Library version: "+eyeTracker.getLibraryVersion());
+        log.info("Model name: "+eyeTracker.getModelName());
+
+        eyeTracker.start();
+    },
+    onStart:function(){
+        log.info("OnStart");
+        ++runCount;
+        endTimeout();
+    },
+    onStop:function(){
+        log.info("OnStop");
+
+        if (runCount <= 1) {
+            eyeTracker.start();
+        }
+    },
+    onError:function(error){
+        log.error(error);
+    },
+    onGazeData:function(gazeData){
+        log.info(gazeData);
     }
-});
+};
+
+
+eyeTracker.setListener(listener);
+eyeTracker.connect();
+
+
+
+
+
 
 
 

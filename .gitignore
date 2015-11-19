@@ -4,3 +4,4 @@ node_modules
 TobiiGazeConfig64.dll
 TobiiGazeCore64.dll
 headers
+.DS_Store

@@ -28,16 +28,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-var gazejs = require("../../lib/gazejs"), bridjs = require("bridjs"),
+var callbackTypes = require("../../lib//tobii/callback_types"), bridjs = require("bridjs"),
         errorCode = new bridjs.NativeValue.uint32(),
-        gaze = gazejs.tobii.gaze,
-        dataTypes = gazejs.tobii.dataTypes, log4js = require("log4js"),
+        ErrorCodes = require("../../lib/tobii/error_codes"), 
+        TobiiGaze = require("../../lib/tobii/gaze"),
+        gaze = new TobiiGaze(),
+        dataTypes = require("../../lib/tobii/data_types"), log4js = require("log4js"),
         log = log4js.getLogger("GazeJSTest"),
         modelUrl = new Buffer(dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH),
         eyeTracker, eventLoopErrorCode = new bridjs.NativeValue.uint32();
 
 var onConnectCallback,onStopTrackingCallback,onDeviceInfoCallback,onStartTrackingCallback,
     onGazeDataCallback;
+
+var checkError = function (errorCode) {
+    var value;
+
+    if (typeof (errorCode) === "number") {
+        value = errorCode;
+    } else {
+        value = errorCode.get();
+    }
+
+    if (value !== ErrorCodes.SUCCESS) {
+        throw new GazeException("Gaze error :" + gaze.getErrorMessage(value));
+    }
+}
 
 function startTracking(){
     gaze.getDeviceInfoAsync(eyeTracker, onDeviceInfoCallback,null);
@@ -57,7 +73,7 @@ function destroy() {
     log.info("Destroy eyeTracker: "+eyeTracker);
     
     if (eyeTracker) {
-        gaze.destroy(bridjs.byPointer(eyeTracker));
+        gaze.destroy((eyeTracker));
     }
 
     //config.free();
@@ -67,8 +83,8 @@ function destroy() {
     process.exit();
 }
 
-onConnectCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData) {
-    gazejs.checkError(errorCode);
+onConnectCallback = bridjs.newCallback(callbackTypes.AsyncCallback, function(errorCode, userData) {
+    checkError(errorCode);
 
     log.info("OnConnect");
     startTracking();
@@ -78,40 +94,40 @@ onConnectCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback,
     }, 3000);*/
 });
 
-onStopTrackingCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData) {
-    gazejs.checkError(errorCode);
+onStopTrackingCallback = bridjs.newCallback(callbackTypes.AsyncCallback, function(errorCode, userData) {
+    checkError(errorCode);
     gaze.disconnectAsync(eyeTracker,onDisconnectCallback, null);
     log.info("OnStop");
 });
 
-onDeviceInfoCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncDeviceInfoCallback, function(deviceInfo, errorCode, userData){
-    gazejs.checkError(errorCode);
+onDeviceInfoCallback = bridjs.newCallback(callbackTypes.AsyncDeviceInfoCallback, function(deviceInfo, errorCode, userData){
+    checkError(errorCode);
     
-    log.info("OnDeviceInof, serial number = "+gazejs.toString(deviceInfo.serialNumber));
+    log.info("OnDeviceInof, serial number = "+bridjs.toString(deviceInfo.serialNumber));
 });
 
-onStartTrackingCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData){
-    gazejs.checkError(errorCode);
+onStartTrackingCallback = bridjs.newCallback(callbackTypes.AsyncCallback, function(errorCode, userData){
+    checkError(errorCode);
     
     log.info("OnStartTracking");
 });
 
-onErrorCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData) {
+onErrorCallback = bridjs.newCallback(callbackTypes.AsyncCallback, function(errorCode, userData) {
     log.info("OnError: "+gaze.getErrorMessage(errorCode));
     
     setTimeout(destroy, 0);
 });
 
-onGazeDataCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.Listener, function(gazeData, extensions,userData) {
+onGazeDataCallback = bridjs.newCallback(callbackTypes.Listener, function(gazeData, extensions,userData) {
     var left = gazeData.left.gazePointOnDisplayNormalized, right = gazeData.right.gazePointOnDisplayNormalized;
     
     log.info("Left eye: "+(left.x)+", "+(left.y)
             +"; Right eye: "+(right.x)+", "+(right.y));
 });
 
-onDisconnectCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncBasicCallback, function(userData) {
+onDisconnectCallback = bridjs.newCallback(callbackTypes.AsyncBasicCallback, function(userData) {
     log.info("onDisconnectCallback");
-    gaze.breakEventLoop(bridjs.byPointer(eyeTracker));
+    gaze.breakEventLoop((eyeTracker));
 });
 
 try {
@@ -120,30 +136,31 @@ try {
 
     gaze.getConnectedEyeTracker(modelUrl, dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH,
             bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);     
-    log.info("Model name: " + gazejs.toString(modelUrl));
+    checkError(errorCode);     
+    log.info("Model name: " + bridjs.toString(modelUrl));
     
     log.info("Natvie library version: " + gaze.getVersion());
     
    // config.getScreenBoundsPixels(modelUrl, bridjs.byPointer(screenBounds), 
       //  bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     eyeTracker = gaze.create(modelUrl, bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     gaze.setLogging("log.txt", dataTypes.LogLevel.OFF, bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
-    gazejs.async(gaze).runEventLoop(bridjs.byPointer(eyeTracker),
+    bridjs.async(gaze).runEventLoop((eyeTracker),
         bridjs.byPointer(eventLoopErrorCode), function(){
-        gazejs.checkError(eventLoopErrorCode);
+        checkError(eventLoopErrorCode);
         log.info("gaze.runEventLoop() returned");
         
         destroy();
     });
-    gaze.registerError(bridjs.byPointer(eyeTracker), onErrorCallback, null);
-    gaze.connectAsync(bridjs.byPointer(eyeTracker), onConnectCallback, null);
+    gaze.registerError(eyeTracker, onErrorCallback, null);
+    gaze.connectAsync(eyeTracker, onConnectCallback, null);
+
     /*Delay execution to workaround strange crash issue*/
     setTimeout(function(){
         

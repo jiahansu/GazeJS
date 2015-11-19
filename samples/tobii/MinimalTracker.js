@@ -28,11 +28,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-var gazejs = require("../../lib/gazejs"), bridjs = require("bridjs"),
+var callbackTypes = require("../../lib//tobii/callback_types"), bridjs = require("bridjs"),
         errorCode = new bridjs.NativeValue.uint32(),
-        //config = gazejs.tobii.config,
-        gaze = gazejs.tobii.gaze,
-        dataTypes = gazejs.tobii.dataTypes, log4js = require("log4js"),
+        ErrorCodes = require("../../lib/tobii/error_codes"), 
+        TobiiGaze = require("../../lib/tobii/gaze"),
+        gaze = new TobiiGaze(),
+        dataTypes = require("../../lib/tobii/data_types"), log4js = require("log4js"),
         log = log4js.getLogger("GazeJSTest"),
         modelUrl = new Buffer(dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH),
         eyeTracker, eventLoopErrorCode = new bridjs.NativeValue.uint32();
@@ -40,19 +41,33 @@ var gazejs = require("../../lib/gazejs"), bridjs = require("bridjs"),
 var onConnectCallback,onStopTrackingCallback,onDeviceInfoCallback,onStartTrackingCallback,
     onGazeDataCallback;
 
+var checkError = function (errorCode) {
+    var value;
+
+    if (typeof (errorCode) === "number") {
+        value = errorCode;
+    } else {
+        value = errorCode.get();
+    }
+
+    if (value !== ErrorCodes.SUCCESS) {
+        throw new GazeException("Gaze error :" + gaze.getErrorMessage(value));
+    }
+}
+
 function startTracking(){
     var deviceInfo = new dataTypes.DeviceInfo();
     
     gaze.connect(eyeTracker, bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     gaze.getDeviceInfo(eyeTracker, bridjs.byPointer(deviceInfo),bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
-    log.info("OnDeviceInof, serial number = "+gazejs.toString(deviceInfo.serialNumber));
+    log.info("OnDeviceInof, serial number = "+bridjs.toString(deviceInfo.serialNumber));
     
     gaze.startTracking(eyeTracker,onGazeDataCallback,bridjs.byPointer(errorCode), null);
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     setTimeout(function(){
         stopTracking();
@@ -62,18 +77,18 @@ function startTracking(){
 
 function stopTracking(){
     gaze.stopTracking(eyeTracker,bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     gaze.disconnect(eyeTracker);
     
-    gaze.breakEventLoop(bridjs.byPointer(eyeTracker));
+    gaze.breakEventLoop((eyeTracker));
 }
 
 function destroy() {
     log.info("Destroy eyeTracker: "+eyeTracker);
     
     if (eyeTracker) {
-        gaze.destroy(bridjs.byPointer(eyeTracker));
+        gaze.destroy((eyeTracker));
     }
 
     //config.free();
@@ -84,13 +99,13 @@ function destroy() {
 }
 
 
-onErrorCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData) {
+onErrorCallback = bridjs.newCallback(callbackTypes.AsyncCallback, function(errorCode, userData) {
     log.info("OnError: "+gaze.getErrorMessage(errorCode));
     
     setTimeout(destroy, 0);
 });
 
-onGazeDataCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.Listener, function(gazeData, extensions, userData) {
+onGazeDataCallback = bridjs.newCallback(callbackTypes.Listener, function(gazeData, extensions, userData) {
     var left = gazeData.left.gazePointOnDisplayNormalized, right = gazeData.right.gazePointOnDisplayNormalized;
     
     log.info("Left eye: "+left.x+", "+left.y+", "+left.z+"; Right eye: "+right.x+", "+right.y+", "+right.z);
@@ -101,24 +116,24 @@ try {
    // gazejs.checkError(errorCode);
     gaze.getConnectedEyeTracker(modelUrl, dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH,
             bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);        
+    checkError(errorCode);        
     //config.getDefaultEyeTrackerUrl(modelUrl, dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH,
     //        bridjs.byPointer(errorCode));
     //gazejs.checkError(errorCode);
     //modelUrl.write("--auto\0");
-    log.info("Model name: " + gazejs.toString(modelUrl));
+    log.info("Model name: " + bridjs.toString(modelUrl));
 
     log.info("Natvie library version: " + gaze.getVersion());
 
     eyeTracker = gaze.create(modelUrl, bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     gaze.setLogging("log.txt", dataTypes.LogLevel.OFF, bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     log.info("Start event loop");
-    gazejs.async(gaze).runEventLoop(bridjs.byPointer(eyeTracker),
+    bridjs.async(gaze).runEventLoop((eyeTracker),
         bridjs.byPointer(eventLoopErrorCode), function(){
-        gazejs.checkError(eventLoopErrorCode);
+        checkError(eventLoopErrorCode);
         log.info("gaze.runEventLoop() returned");
         
         destroy();
@@ -126,7 +141,7 @@ try {
     
     /*Delay execution to workaround strange crash issue*/
     setTimeout(function(){
-        gaze.registerError(bridjs.byPointer(eyeTracker), onErrorCallback, null);
+        gaze.registerError((eyeTracker), onErrorCallback, null);
         startTracking();
     },16);
 } catch (e) {

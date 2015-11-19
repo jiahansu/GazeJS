@@ -2,7 +2,7 @@
  * GazeJS - An implementation of the JavaScript bindings for Tobii Gaze SDK.
  * https://github.com/jiahansu/GazeJS
  *
- * Copyright (c) 2013-2013, Jia-Han Su (https://github.com/jiahansu)
+ * Copyright (c) 2013-2015, Jia-Han Su (https://github.com/jiahansu)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 var gazejs = require("../lib/gazejs"), my = require("myclass"),
-        log4js = require("log4js"), log = log4js.getLogger("EyeTracker");
-var eyeTracker = gazejs.createEyeTracker(gazejs.TOBII_GAZE_SDK);
-
-var listener = {
+        log4js = require("log4js"), log = log4js.getLogger("Calibration");
+var eyeTracker = gazejs.createEyeTracker(gazejs.SR_EYELINK_SDK);
+var calibrationListener = {
+             onStart:function(tracker){log.info("start: ",tracker);},
+             onEnd:function(tracker){
+                 log.info("end: ",tracker);
+                 eyeTracker.doDriftCorrect(function(){
+                    log.info("End doDriftCorrect");
+                    eyeTracker.startRecording("test.edf");
+                    eyeTracker.start();
+                });
+             },
+             onClear:function(tracker){log.info("clear: ",tracker);},
+             onTargetErase:function(tracker){log.info("target erase: ",tracker);},
+             onBeep:function(type,tracker){log.info("beep: ",type);},
+             onTargetShow:function(x, y,tracker){log.info("show, x = ",x, ", y = ",y);}
+         };
+var trackeListener = {
+    onConnect:function(){
+        log.info("Library version: "+eyeTracker.getLibraryVersion());
+        log.info("Model name: "+eyeTracker.getModelName());
+        
+        eyeTracker.startCalibration(calibrationListener);
+        
+        
+        
+        //eyeTracker.start();
+    },
     onStart:function(){
         log.info("OnStart");
+        
+        
     },
     onStop:function(){
         log.info("OnStop");
@@ -47,17 +73,19 @@ var listener = {
     }
 };
 
-eyeTracker.init();
-eyeTracker.setListener(listener);
-
-log.info("Library version: "+eyeTracker.getLibraryVersion());
-log.info("Model name: "+eyeTracker.getModelName());
-
-eyeTracker.start();
+eyeTracker.setListener(trackeListener);
+eyeTracker.connect();
 
 setTimeout(function(){
-    eyeTracker.release();
-},20000);
+    eyeTracker.sendRecordMessage("Test message!!");
+    eyeTracker.stop();
+    eyeTracker.stopRecording("test.edf", function(bytes){
+        eyeTracker.release();
+        setTimeout(function(){
+            process.exit();
+        },0);
+    });
+},30000);
 
 
 

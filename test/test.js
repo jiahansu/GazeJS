@@ -30,15 +30,30 @@
  */
 var gazejs = require("../lib/gazejs"), bridjs = require("bridjs"),
         errorCode = new bridjs.NativeValue.uint32(),
-        //config = gazejs.tobii.config,
-        gaze = gazejs.tobii.gaze,
-        dataTypes = gazejs.tobii.dataTypes, log4js = require("log4js"),
+        ErrorCodes = require("../lib/tobii/error_codes"), 
+        TobiiGaze = require("../lib/tobii/gaze"),
+        gaze = new TobiiGaze(),
+        dataTypes = require("../lib/tobii/data_types"), log4js = require("log4js"),
         log = log4js.getLogger("GazeJSTest"),
         modelUrl = new Buffer(dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH),
         eyeTracker, eventLoopErrorCode = new bridjs.NativeValue.uint32();
 
 var onConnectCallback,onStopTrackingCallback,onDeviceInfoCallback,onStartTrackingCallback,
     onGazeDataCallback;
+
+var checkError = function (errorCode) {
+    var value;
+
+    if (typeof (errorCode) === "number") {
+        value = errorCode;
+    } else {
+        value = errorCode.get();
+    }
+
+    if (value !== ErrorCodes.SUCCESS) {
+        throw new GazeException("Gaze error :" + gaze.getErrorMessage(value));
+    }
+}
 
 function startTracking(){
     gaze.getDeviceInfoAsync(eyeTracker, onDeviceInfoCallback,null);
@@ -67,7 +82,7 @@ function destroy() {
 }
 
 onConnectCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData) {
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
 
     log.info("OnConnect");
     startTracking();
@@ -78,20 +93,20 @@ onConnectCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback,
 });
 
 onStopTrackingCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData) {
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     gaze.disconnectAsync(eyeTracker,onDisconnectCallback, null);
     log.info("OnStop");
 });
 
 onDeviceInfoCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncDeviceInfoCallback, function(deviceInfo, errorCode, userData){
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     log.info("OnDeviceInof, serial number = "+gazejs.toString(deviceInfo.serialNumber));
 });
 
 onStartTrackingCallback = gazejs.newCallback(gazejs.tobii.callbackTypes.AsyncCallback, function(errorCode, userData){
     //log.info(userData);
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     log.info("OnStartTracking");
 });
@@ -119,20 +134,20 @@ try {
 
      gaze.getConnectedEyeTracker(modelUrl, dataTypes.Constants.DEVICE_INFO_MAX_MODEL_LENGTH,
             bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);     
+    checkError(errorCode);     
     log.info("Model name: " + gazejs.toString(modelUrl));
 
     log.info("Natvie library version: " + gaze.getVersion());
 
     eyeTracker = gaze.create(modelUrl, bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     gaze.setLogging("log.txt", dataTypes.LogLevel.OFF, bridjs.byPointer(errorCode));
-    gazejs.checkError(errorCode);
+    checkError(errorCode);
     
     gazejs.async(gaze).runEventLoop(bridjs.byPointer(eyeTracker),
         bridjs.byPointer(eventLoopErrorCode), function(){
-        gazejs.checkError(eventLoopErrorCode);
+        checkError(eventLoopErrorCode);
         log.info("gaze.runEventLoop() returned");
         
         destroy();
