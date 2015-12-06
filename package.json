@@ -1,6 +1,6 @@
 {
     "name": "gazejs",
-    "version": "0.5.000-4",
+    "version": "0.5.1-1",
     "description": "An implementation of the JavaScript bindings for Tobii Gaze SDK",
     "keywords": [
         "Tobii",
