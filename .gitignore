@@ -5,3 +5,4 @@ TobiiGazeConfig64.dll
 TobiiGazeCore64.dll
 headers
 .DS_Store
+/nbproject/private/
