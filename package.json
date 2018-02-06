@@ -1,6 +1,6 @@
 {
     "name": "gazejs",
-    "version": "0.5.1-3",
+    "version": "0.5.1-5",
     "description": "An implementation of the JavaScript bindings for Tobii Gaze SDK",
     "keywords": [
         "Tobii",
@@ -33,17 +33,12 @@
         "lib": "lib"
     },
     "dependencies": {
-        "myclass": ">=1.0.2",
-        "log4js": ">=0.6.9",
-        "bridjs": ">=0.3.5",
-        "amdefine": ">=0.1.0"
+        "amdefine": ">=0.1.0",
+        "bridjs": "^0.5.8",
+        "log4js": "^2.5.2",
+        "myclass": "^1.0.2"
     },
-    "devDependencies": {
-        "myclass": ">=1.0.2",
-        "log4js": ">=0.6.9",
-        "bridjs": ">=0.3.5",
-        "amdefine": ">=0.1.0"
-    },
+    "devDependencies": {},
     "browser": {
         "os": false
     },

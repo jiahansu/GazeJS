@@ -1,5 +1,6 @@
 headers
 netbeans
 node_modules
+package-lock.json
 TobiiGazeConfig64.dll
 TobiiGazeCore64.dll
